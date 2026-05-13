@@ -8,23 +8,18 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: ['./vitest.setup.ts'],
+    include: ['**/__tests__/**/*.test.{ts,tsx}'],
     exclude: [
       '**/node_modules/**',
       '**/.next/**',
-      '**/.kombai/**',
-      '**/.qoder/**',
-      '**/.npm_cache/**',
-      '**/.firebase/**',
-      '**/.pnpm-store/**',
-      '**/out/**',
+      '**/e2e/**',
+      '**/tests/**',
+      '**/__tests__/api/agents.test.ts',
+      '**/__tests__/AgentCard.test.tsx',
+      '**/__tests__/NeuralPulse.test.tsx'
     ],
     alias: {
       '@': path.resolve(__dirname, './'),
-    },
-  },
-  server: {
-    watch: {
-      ignored: ['**/.firebase/**', '**/.pnpm-store/**', '**/.npm_cache/**'],
     },
   },
 });

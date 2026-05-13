@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import {NextRequest, NextResponse} from 'next/server';
 
 // In-memory rate limiting map
@@ -66,4 +67,3 @@ export async function GET(request: NextRequest) {
 }
 
 // Mark as dynamic since it depends on request headers and env vars
-export const dynamic = 'force-dynamic';

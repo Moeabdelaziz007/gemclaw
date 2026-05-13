@@ -31,7 +31,7 @@ const DraggableNode = ({ id, name, left, top, icon: Icon }: DragNodeProps) => {
 
   return (
     <motion.div
-      ref={dragRef}
+      ref={dragRef as any}
       initial={{ scale: 0 }}
       animate={{ scale: isDragging ? 1.05 : 1, opacity: isDragging ? 0.5 : 1 }}
       className="absolute flex cursor-grab flex-col items-center justify-center space-y-2 rounded-2xl border border-gemigram-neon/30 bg-black/60 p-4 shadow-[0_0_20px_rgba(16,255,135,0.15)] backdrop-blur-xl transition hover:border-gemigram-neon/60 hover:shadow-[0_0_30px_rgba(16,255,135,0.3)] active:cursor-grabbing"
@@ -81,7 +81,7 @@ export const SpatialCanvas = () => {
   );
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-black outline-none" ref={dropRef}>
+    <div className="relative h-full w-full overflow-hidden bg-black outline-none" ref={dropRef as any}>
       {/* Cyberpunk Grid Background */}
       <div 
         className="absolute inset-0 z-0 opacity-20"

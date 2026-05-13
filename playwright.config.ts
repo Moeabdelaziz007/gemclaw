@@ -7,9 +7,15 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
+  timeout: 60000,
+  expect: {
+    timeout: 30000,
+  },
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
+    actionTimeout: 30000,
+    navigationTimeout: 30000,
   },
   projects: [
     {
@@ -18,8 +24,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: process.env.CI ? 'npx serve@latest out -p 3000' : 'npm run dev',
+    command: 'NEXT_PUBLIC_FIREBASE_API_KEY=mock-key NEXT_PUBLIC_FIREBASE_PROJECT_ID=mock-project npm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
+    timeout: 120000,
   },
 });

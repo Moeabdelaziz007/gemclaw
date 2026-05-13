@@ -17,6 +17,10 @@ if [ ! -f .env ]; then
     echo "⚠️ Warning: .env file not found. Ensure your environment variables are set in the Firebase Console."
 fi
 
+echo "🧹 CLEANING UP STALE BUILDS (PREVENTING MISSING FILES)..."
+rm -rf .next
+rm -rf out
+
 echo "🔨 BUILDING NEURAL SUBSTRATE (NEXT.JS)..."
 npm run build
 

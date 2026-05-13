@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { NeuralRouter } from "@/lib/neural/router";
 import { NeuralProvider } from "@/lib/neural/types";

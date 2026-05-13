@@ -9,7 +9,7 @@ vi.mock('firebase-admin', () => {
   };
   const mockFirestore = vi.fn();
   return {
-    apps: [],
+    apps: [{}], // MUST NOT BE EMPTY so that admin.auth() is returned instead of null
     initializeApp: vi.fn(),
     credential: {
       cert: vi.fn(),
@@ -24,7 +24,7 @@ describe('serverAuth', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (admin.apps as any) = [];
+    (admin.apps as any) = [{}];
   });
 
   describe('verifyIdToken', () => {

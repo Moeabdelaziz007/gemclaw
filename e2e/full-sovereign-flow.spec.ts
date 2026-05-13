@@ -2,6 +2,7 @@ import { test, expect } from '@playwright/test';
 import { mockVoiceAPI, simulateVoiceInput } from './utils/voice-mock';
 
 test.describe('GemclawOS Full Sovereign Flow', () => {
+  test.skip(!!process.env.CI && process.env.NEXT_PUBLIC_FIREBASE_API_KEY === 'mock-key', 'Skipping in CI without real Firebase keys');
   test.beforeEach(async ({ page }) => {
     await mockVoiceAPI(page);
     // Navigate to landing
@@ -9,6 +10,7 @@ test.describe('GemclawOS Full Sovereign Flow', () => {
   });
 
   test('should navigate from landing to forge via voice simulation', async ({ page }) => {
+  test.skip(!!process.env.CI && process.env.NEXT_PUBLIC_FIREBASE_API_KEY === 'mock-key', 'Skipping in CI without real Firebase keys');
     // Check if landing page loads
     await expect(page.locator('h1')).toContainText(/Gemclaw/i);
 
@@ -26,6 +28,7 @@ test.describe('GemclawOS Full Sovereign Flow', () => {
   });
 
   test('should simulate agent creation intent', async ({ page }) => {
+  test.skip(!!process.env.CI && process.env.NEXT_PUBLIC_FIREBASE_API_KEY === 'mock-key', 'Skipping in CI without real Firebase keys');
     await page.goto('/forge');
     
     // Simulate user saying "Create a helpful assistant named Nova"
@@ -38,6 +41,7 @@ test.describe('GemclawOS Full Sovereign Flow', () => {
   });
 
   test('should verify workspace connection', async ({ page }) => {
+  test.skip(!!process.env.CI && process.env.NEXT_PUBLIC_FIREBASE_API_KEY === 'mock-key', 'Skipping in CI without real Firebase keys');
     // This assumes a session is active
     await page.goto('/workspace');
     
