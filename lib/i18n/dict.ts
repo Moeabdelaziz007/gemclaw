@@ -29,7 +29,7 @@ export const translations = {
         home: "Home",
         galaxy: "Galaxy",
         hub: "Neural Hub",
-        clawhub: "Clawhub",
+        clawhub: "ClawHub",
         forge: "Forge",
         workspace: "Workspace",
         marketplace: "Marketplace",

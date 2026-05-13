@@ -95,15 +95,116 @@ describe('/api/agents API Route', () => {
       (verifyIdToken as any).mockResolvedValue({ uid: 'user-1' });
       const mockCollection = (db.collection as any)();
       mockCollection.add.mockRejectedValue(new Error('Firestore Error'));
-      
+
       const req = new NextRequest('http://localhost/api/agents', {
         method: 'POST',
         headers: { Authorization: 'Bearer valid-token' },
         body: JSON.stringify({ name: 'Fail Agent' })
       });
-      
+
       const res = await POST(req);
       expect(res.status).toBe(500);
+    });
+
+    it('should include a success message in the response body', async () => {
+      (verifyIdToken as any).mockResolvedValue({ uid: 'user-1' });
+      const mockCollection = (db.collection as any)();
+      mockCollection.add.mockResolvedValue({ id: 'agent-xyz' });
+
+      const req = new NextRequest('http://localhost/api/agents', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer valid-token' },
+        body: JSON.stringify({ name: 'Echo Agent' })
+      });
+
+      const res = await POST(req);
+      const data = await res.json();
+
+      expect(res.status).toBe(201);
+      expect(data.message).toBe('Agent Synchronized Successfully');
+    });
+
+    it('should attach createdAt and updatedAt timestamps to the agent', async () => {
+      (verifyIdToken as any).mockResolvedValue({ uid: 'user-2' });
+      const mockCollection = (db.collection as any)();
+      mockCollection.add.mockResolvedValue({ id: 'ts-agent' });
+
+      const req = new NextRequest('http://localhost/api/agents', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer valid-token' },
+        body: JSON.stringify({ name: 'Time Agent' })
+      });
+
+      await POST(req);
+
+      const addedData = mockCollection.add.mock.calls[0][0];
+      expect(addedData.createdAt).toBeDefined();
+      expect(addedData.updatedAt).toBeDefined();
+      // Both should be ISO date strings
+      expect(() => new Date(addedData.createdAt)).not.toThrow();
+    });
+  });
+
+  describe('GET — additional edge cases', () => {
+    it('should return empty array when user has no agents', async () => {
+      (verifyIdToken as any).mockResolvedValue({ uid: 'user-empty' });
+      const mockCollection = (db.collection as any)();
+      const mockWhere = mockCollection.where();
+      mockWhere.get.mockResolvedValue({ docs: [] });
+
+      const req = new NextRequest('http://localhost/api/agents', {
+        headers: { Authorization: 'Bearer valid-token' }
+      });
+
+      const res = await GET(req);
+      const data = await res.json();
+
+      expect(res.status).toBe(200);
+      expect(data).toHaveLength(0);
+      expect(Array.isArray(data)).toBe(true);
+    });
+
+    it('should return 500 when Firestore GET throws', async () => {
+      (verifyIdToken as any).mockResolvedValue({ uid: 'user-1' });
+      const mockCollection = (db.collection as any)();
+      const mockWhere = mockCollection.where();
+      mockWhere.get.mockRejectedValue(new Error('Firestore unavailable'));
+
+      const req = new NextRequest('http://localhost/api/agents', {
+        headers: { Authorization: 'Bearer valid-token' }
+      });
+
+      const res = await GET(req);
+      const data = await res.json();
+
+      expect(res.status).toBe(500);
+      expect(data.error).toContain('System Error');
+    });
+
+    it('should isolate agents by ownerId', async () => {
+      (verifyIdToken as any).mockResolvedValue({ uid: 'user-A' });
+      const mockCollection = (db.collection as any)();
+      const mockWhere = mockCollection.where();
+      mockWhere.get.mockResolvedValue({ docs: [] });
+
+      const req = new NextRequest('http://localhost/api/agents', {
+        headers: { Authorization: 'Bearer valid-token' }
+      });
+
+      await GET(req);
+
+      expect(mockCollection.where).toHaveBeenCalledWith('ownerId', '==', 'user-A');
+    });
+
+    it('should return 401 if Authorization header is missing entirely', async () => {
+      (verifyIdToken as any).mockResolvedValue(null);
+      const req = new NextRequest('http://localhost/api/agents');
+
+      const res = await GET(req);
+      const data = await res.json();
+
+      expect(res.status).toBe(401);
+      expect(data.error).toBeDefined();
     });
   });
 });
