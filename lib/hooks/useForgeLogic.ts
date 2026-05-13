@@ -68,7 +68,7 @@ export function useForgeLogic() {
   const finalizeMaterialization = useCallback(() => {
     const rawSystemPrompt = formData.systemPrompt || `You are ${formData.name}, an AI assistant.`;
     const normalizedPrompt = rawSystemPrompt
-      .replace(/^\[PERSONA:[^\n]*\]\n\n/, '')
+      .replace(/^(?:\[PERSONA:[^\n]*\]\n\n)+/, '')
       .replace(/\n\nCORE DIRECTIVES:\n[\s\S]*$/, '');
 
     let finalSystemPrompt = normalizedPrompt;
