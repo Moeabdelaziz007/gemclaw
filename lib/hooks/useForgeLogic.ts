@@ -57,8 +57,21 @@ export function useForgeLogic() {
   const [transcript, setTranscript] = useState('');
   
   // Materialization logic
+  //
+  // finalizeMaterialization can be invoked multiple times (e.g. the user
+  // edits the form, finalizes, then re-edits and finalizes again). Each
+  // call writes the composed prompt back into formData.systemPrompt via
+  // setLocalFormData, so the next call would see the previously-stamped
+  // prompt as its base. To keep the operation idempotent we strip any
+  // existing [PERSONA: ...] header and CORE DIRECTIVES trailer from the
+  // base prompt before re-stamping a fresh single instance of each.
   const finalizeMaterialization = useCallback(() => {
-    let finalSystemPrompt = formData.systemPrompt || `You are ${formData.name}, an AI assistant.`;
+    const rawSystemPrompt = formData.systemPrompt || `You are ${formData.name}, an AI assistant.`;
+    const normalizedPrompt = rawSystemPrompt
+      .replace(/^\[PERSONA:[^\n]*\]\n\n/, '')
+      .replace(/\n\nCORE DIRECTIVES:\n[\s\S]*$/, '');
+
+    let finalSystemPrompt = normalizedPrompt;
     if (formData.persona) {
       finalSystemPrompt = `[PERSONA: ${formData.persona}]\n\n${finalSystemPrompt}`;
     }
