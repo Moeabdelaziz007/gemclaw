@@ -351,7 +351,10 @@ export default function ConversationalAgentCreator({
                   <Brain className="w-7 h-7 text-[#8eff71]" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-black tracking-[0.4em] uppercase text-white flex items-center gap-4">
+                  <h2
+                    data-testid="aether-forge-heading"
+                    className="text-2xl font-black tracking-[0.4em] uppercase text-white flex items-center gap-4"
+                  >
                     <span className="text-[#8eff71]">Aether</span> Forge
                   </h2>
                   <p className="text-[11px] font-mono text-white/40 uppercase tracking-[0.4em] mt-1.5">
