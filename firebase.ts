@@ -18,21 +18,23 @@ let db: Firestore;
 let auth: Auth;
 let storage: FirebaseStorage;
 
-if (typeof window !== 'undefined') {
-  app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-  db = getFirestore(app);
-  auth = getAuth(app);
-  storage = getStorage(app);
-} else {
-  // SSR fallback
-  app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-  db = getFirestore(app);
-  auth = getAuth(app);
-  storage = getStorage(app);
+if (!!firebaseConfig.apiKey) {
+  if (typeof window !== 'undefined') {
+    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    db = getFirestore(app);
+    auth = getAuth(app);
+    storage = getStorage(app);
+  } else {
+    // SSR fallback
+    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    db = getFirestore(app);
+    auth = getAuth(app);
+    storage = getStorage(app);
+  }
 }
 
-// Export specific instances as requested
-export { app, db, auth, storage };
+// Export specific instances as requested (cast to avoid ts errors when apiKey is missing in CI)
+export { app as app, db as db, auth as auth, storage as storage };
 export const googleProvider = new GoogleAuthProvider();
 
 googleProvider.addScope('https://www.googleapis.com/auth/cloud-platform.read-only');

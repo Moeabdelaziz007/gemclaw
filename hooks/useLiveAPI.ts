@@ -547,6 +547,10 @@ export function useLiveAPI(apiKey: string, onFunctionCall: (call: ToolResult) =>
     stopPulse,
     sab: sabRef.current,
     wsRef,
-    analyserRef
+    analyserRef,
+    startRecording,
+    stopRecording,
+    connect,
+    disconnect
   };
 }

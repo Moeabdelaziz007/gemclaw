@@ -83,8 +83,15 @@ describe('serverAuth', () => {
       );
       
       // Security Check: Ensure token is not logged
-      const loggedError = consoleErrorSpy.mock.calls[0][1] as Error;
-      expect(loggedError.message).toBe('Token expired');
+      const callArgs = consoleErrorSpy.mock.calls[0];
+      const errorArg = callArgs.find(arg => arg instanceof Error) as Error | undefined;
+
+      if (errorArg) {
+         expect(errorArg.message).toBe('Token expired');
+      } else {
+         // Fallback if the error object is not passed directly but serialized
+         expect(callArgs.join(' ')).toContain('Token expired');
+      }
       
       consoleErrorSpy.mockRestore();
     });

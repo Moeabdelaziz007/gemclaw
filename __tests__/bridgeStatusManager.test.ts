@@ -26,7 +26,7 @@ describe('BridgeStatusManager', () => {
     expect(bridgeStatusManager.getStatus()).toBe('unknown');
   });
 
-  it('should notify subscribers on status change', () => {
+  it('should notify subscribers on status change', async () => {
     const callback = vi.fn();
     bridgeStatusManager.subscribe(callback);
     
@@ -35,7 +35,7 @@ describe('BridgeStatusManager', () => {
     
     // Trigger update (internal method via public probe failure)
     (fetchWithTimeout as any).mockRejectedValue(new Error('Fail'));
-    bridgeStatusManager.probe(true);
+    await bridgeStatusManager.probe(true);
     
     // Status should change to stateless
     expect(bridgeStatusManager.getStatus()).toBe('stateless');

@@ -1,13 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useDrag, useDrop } from 'react-dnd';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Cpu, Zap, Radio, Boxes } from 'lucide-react';
-
-const ItemTypes = {
-  NODE: 'node',
-};
 
 interface DragNodeProps {
   id: string;
@@ -17,25 +12,26 @@ interface DragNodeProps {
   icon: React.ElementType;
 }
 
-const DraggableNode = ({ id, name, left, top, icon: Icon }: DragNodeProps) => {
-  const [{ isDragging }, dragRef] = useDrag(
-    () => ({
-      type: ItemTypes.NODE,
-      item: { id, left, top },
-      collect: (monitor) => ({
-        isDragging: monitor.isDragging(),
-      }),
-    }),
-    [id, left, top]
-  );
+interface DraggableNodeComponentProps extends DragNodeProps {
+  constraintsRef: React.RefObject<HTMLDivElement | null>;
+  onDragEnd: (id: string, left: number, top: number) => void;
+}
 
+const DraggableNode = ({ id, name, left, top, icon: Icon, constraintsRef, onDragEnd }: DraggableNodeComponentProps) => {
   return (
     <motion.div
-      ref={dragRef}
-      initial={{ scale: 0 }}
-      animate={{ scale: isDragging ? 1.05 : 1, opacity: isDragging ? 0.5 : 1 }}
+      drag
+      dragConstraints={constraintsRef}
+      dragElastic={0.1}
+      dragMomentum={false}
+      initial={{ x: left, y: top, scale: 0 }}
+      animate={{ x: left, y: top, scale: 1 }}
+      whileDrag={{ scale: 1.05, opacity: 0.8 }}
+      onDragEnd={(e, info) => {
+        onDragEnd(id, left + info.offset.x, top + info.offset.y);
+      }}
       className="absolute flex cursor-grab flex-col items-center justify-center space-y-2 rounded-2xl border border-gemigram-neon/30 bg-black/60 p-4 shadow-[0_0_20px_rgba(16,255,135,0.15)] backdrop-blur-xl transition hover:border-gemigram-neon/60 hover:shadow-[0_0_30px_rgba(16,255,135,0.3)] active:cursor-grabbing"
-      style={{ left, top }}
+      style={{ left: 0, top: 0 }} // Positioning handled by framer-motion x/y
     >
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gemigram-neon/10">
         <Icon className="h-6 w-6 text-gemigram-neon" />
@@ -50,6 +46,7 @@ const DraggableNode = ({ id, name, left, top, icon: Icon }: DragNodeProps) => {
 };
 
 export const SpatialCanvas = () => {
+  const constraintsRef = useRef<HTMLDivElement>(null);
   const [nodes, setNodes] = useState<{ [key: string]: DragNodeProps }>({
     'core-node': { id: 'core-node', name: 'ClawHub Core', left: 100, top: 100, icon: Boxes },
     'sensory-node': { id: 'sensory-node', name: 'Sensory', left: 300, top: 200, icon: Radio },
@@ -57,31 +54,19 @@ export const SpatialCanvas = () => {
     'galaxy-node': { id: 'galaxy-node', name: 'Galaxy Sync', left: 450, top: 150, icon: Zap },
   });
 
-  const [, dropRef] = useDrop(
-    () => ({
-      accept: ItemTypes.NODE,
-      drop: (item: { id: string; left: number; top: number }, monitor) => {
-        const delta = monitor.getDifferenceFromInitialOffset();
-        if (delta) {
-          const left = Math.round(item.left + delta.x);
-          const top = Math.round(item.top + delta.y);
-          setNodes((prev) => ({
-            ...prev,
-            [item.id]: {
-              ...prev[item.id],
-              left,
-              top,
-            },
-          }));
-        }
-        return undefined;
+  const handleDragEnd = (id: string, left: number, top: number) => {
+    setNodes((prev) => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        left,
+        top,
       },
-    }),
-    [setNodes]
-  );
+    }));
+  };
 
   return (
-    <div className="relative h-full w-full overflow-hidden bg-black outline-none" ref={dropRef}>
+    <div className="relative h-full w-full overflow-hidden bg-black outline-none" ref={constraintsRef}>
       {/* Cyberpunk Grid Background */}
       <div 
         className="absolute inset-0 z-0 opacity-20"
@@ -92,9 +77,14 @@ export const SpatialCanvas = () => {
       />
       
       {/* Canvas Area */}
-      <div className="absolute inset-0z-10 h-full w-full">
+      <div className="absolute inset-0 z-10 h-full w-full">
         {Object.keys(nodes).map((key) => (
-          <DraggableNode key={key} {...nodes[key]} />
+          <DraggableNode
+            key={key}
+            {...nodes[key]}
+            constraintsRef={constraintsRef}
+            onDragEnd={handleDragEnd}
+          />
         ))}
       </div>
       
