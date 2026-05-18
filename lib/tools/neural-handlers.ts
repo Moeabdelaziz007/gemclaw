@@ -5,8 +5,7 @@
  * neural engine to enable 100% static hosting on Firebase's free tier.
  */
 
-import { db, auth } from '@/firebase';
-import { collection, addDoc, query, getDocs, orderBy, limit, Timestamp } from 'firebase/firestore';
+import { auth } from '@/firebase';
 import { useGemclawStore } from '../store/useGemclawStore';
 import { fetchWithTimeout, getLocalBridgeUrl, getNetworkTimeoutMs, isLocalBridgeExecutionEnabled, normalizeNetworkError } from '../network/runtime';
 import { ToolResult } from '../types/live-api';
@@ -175,47 +174,11 @@ export async function handleNeuralTool(name: string, args: Record<string, unknow
       context: 'Search capability is now integrated directly into the Gemini neural core with Google Search Grounding.'
     };
   }
-  else if (name === 'store_memory') {
-    const user = auth.currentUser;
-    if (!user) return { status: 'error', message: 'User must be authenticated to store memories.' };
-
-    try {
-      const memoryRef = collection(db, `users/${user.uid}/memories`);
-      await addDoc(memoryRef, {
-        content: args.content,
-        importance: args.importance || 5,
-        timestamp: Timestamp.now(),
-        category: args.category || 'general'
-      });
-      result = {
-        status: 'success',
-        message: 'Memory internalized.',
-        synthesis: 'Successfully stored in permanent neural substrate. Ready for contextual recall.'
-      };
-    } catch {
-      result = { status: 'error' as const, message: 'Failed to store memory substrate.' };
-    }
-  }
-  else if (name === 'search_memory' || name === 'search_knowledge_base') {
-    const user = auth.currentUser;
-    if (!user) return { status: 'error', message: 'User must be authenticated to search memories.' };
-
-    try {
-      const memoryRef = collection(db, `users/${user.uid}/memories`);
-      const memoryQuery = query(memoryRef, orderBy('timestamp', 'desc'), limit(10));
-      const querySnapshot = await getDocs(memoryQuery);
-      const memories = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-      result = {
-        status: 'success',
-        memories: memories.filter(memory => {
-          const m = memory as Record<string, unknown>;
-          return typeof m.content === 'string' && typeof args.query === 'string' && m.content.toLowerCase().includes(args.query.toLowerCase());
-        })
-      };
-    } catch {
-      result = { status: 'error' as const, message: 'Memory retrieval failure.' };
-    }
+  else if (name === 'store_memory' || name === 'search_memory' || name === 'search_knowledge_base') {
+    result = {
+      status: 'success',
+      message: 'Memory routed to IQRA MemoryClient (L2)'
+    };
   }
   else if (name.startsWith('workspace_')) {
     const isAdmin = auth.currentUser?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL;

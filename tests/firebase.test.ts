@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { db, auth, storage, googleProvider } from '../l@/firebase';
+import { db, auth, storage, googleProvider } from '@/firebase';
 
 test('handleFirestoreError', async (t) => {
   // Suppress console.error

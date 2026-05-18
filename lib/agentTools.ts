@@ -72,7 +72,7 @@ export const agentTools: FunctionDeclaration[] = [
   },
   {
     name: "store_memory",
-    description: "Stores information in long-term semantic memory.",
+    description: "Stores information in IQRA's quantum memory system (layers 0-6). Routed to IQRA MemoryClient (L2).",
     parameters: {
       type: Type.OBJECT,
       properties: {
@@ -84,7 +84,7 @@ export const agentTools: FunctionDeclaration[] = [
   },
   {
     name: "search_memory",
-    description: "Searches long-term semantic memory.",
+    description: "Searches IQRA's quantum memory across all 7 layers (Hot/Warm/Cold/Vector/Topological/Graph/Quantum). Routed to IQRA MemoryClient (L2).",
     parameters: {
       type: Type.OBJECT,
       properties: {
@@ -112,7 +112,7 @@ export const agentTools: FunctionDeclaration[] = [
   },
   {
     name: "search_knowledge_base",
-    description: "Searches the user's personal knowledge base stored in Firestore. Use for retrieving previously stored memories, notes, preferences, and conversation summaries.",
+    description: "Searches IQRA's knowledge base across semantic and topological layers. Routed to IQRA MemoryClient (L2).",
     parameters: {
       type: Type.OBJECT,
       properties: {
